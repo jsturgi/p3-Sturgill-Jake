@@ -74,8 +74,7 @@ public class TankShooting : MonoBehaviour
         }
         if (m_Reloading)
         {
-            m_ReloadTimeCopy -= Time.deltaTime;
-            m_ReloadCooldown.value = Mathf.Lerp(0f, 1.5f, (m_ReloadTimeCopy/m_ReloadTime));
+            SetReloadCooldownUI();
         }
     }
 
@@ -106,15 +105,21 @@ public class TankShooting : MonoBehaviour
         m_Reloading = false;
         m_ReloadTimeCopy = m_ReloadTime;
     }
-/*
-    private IEnumerator Cooldown(float m_ReloadTimeCopy)
-    {
-        while (m_ReloadTimeCopy > 0)
+    /*
+        private IEnumerator Cooldown(float m_ReloadTimeCopy)
         {
-            m_ReloadTimeCopy -= Time.deltaTime;
-            m_ReloadCooldown.value = Mathf.Lerp(0f, 1.5f, m_ReloadTimeCopy / m_ReloadTime);
-            yield return null;
+            while (m_ReloadTimeCopy > 0)
+            {
+                m_ReloadTimeCopy -= Time.deltaTime;
+                m_ReloadCooldown.value = Mathf.Lerp(0f, 1.5f, m_ReloadTimeCopy / m_ReloadTime);
+                yield return null;
+            }
         }
+    */
+
+    private void SetReloadCooldownUI()
+    {
+        m_ReloadTimeCopy -= Time.deltaTime;
+        m_ReloadCooldown.value = m_ReloadTimeCopy;
     }
-*/
 }
