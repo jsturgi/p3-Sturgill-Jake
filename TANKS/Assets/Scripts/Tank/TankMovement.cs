@@ -97,4 +97,10 @@ public class TankMovement : MonoBehaviour
 
         m_Rigidbody.MoveRotation(m_Rigidbody.rotation * turnRotation);
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("Flag Acquired");
+        
+    }
 }
