@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     private TankManager m_RoundWinner;
     private TankManager m_GameWinner;
     private int TimerText;
+    private TankMovement movementScript;
 
 
     private void Start()
@@ -47,6 +48,9 @@ public class GameManager : MonoBehaviour
             StartCoroutine(RoundEnding());
         }
         timerText.text = TimerText.ToString();
+
+       
+
     }
 
 
@@ -122,11 +126,16 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private IEnumerator RoundEnding()
+    public IEnumerator RoundEnding()
     {
         DisableTankControl();
 
         m_RoundWinner = null;
+
+        if (movementScript.m_RoundWonByMe != null)
+        {
+            m_RoundWinner = movementScript.m_RoundWonByMe;
+        }
 
         m_RoundWinner = GetRoundWinner();
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TankMovement : MonoBehaviour
+public class TankMovement : MonoBehaviour 
 {
     public int m_PlayerNumber = 1;
     public float m_Speed = 12f;
@@ -13,6 +13,7 @@ public class TankMovement : MonoBehaviour
     public float m_PitchRange = .2f;
     public GameObject m_TankFlag;
     public GameObject m_FlagTank;
+    public TankManager m_RoundWonByMe = null;
 
     private string m_MovementAxisName;
     private string m_TurnAxisName;
@@ -21,6 +22,8 @@ public class TankMovement : MonoBehaviour
     private float m_TurnInputValue;
     private float m_OriginalPitch;
     private bool m_FlagCarry;
+    private TankManager tankManager;
+    private GameManager gameManager;
     
     
 
@@ -126,16 +129,31 @@ public class TankMovement : MonoBehaviour
         
         if (collision.gameObject.name == "SpawnPoint1")
         {
-            if (m_FlagCarry)
+            if (m_FlagTank)
             {
-                Debug.Log("Player1 Wins");
+                for (int i = 0; i < gameManager.m_Tanks.Length; i++)
+                {
+                    if (gameManager.m_Tanks[i].m_PlayerNumber == 2)
+                    {
+                        Destroy(tankManager.m_Instance);
+                    }
+                }
+              
+
             }
         }
         if (collision.gameObject.name == "SpawnPoint2")
         {
-            if (m_FlagCarry)
+            if (m_FlagTank)
             {
-                Debug.Log("Player2 Wins!");
+                for (int i = 0; i < gameManager.m_Tanks.Length; i++)
+                {
+                    if (gameManager.m_Tanks[i].m_PlayerNumber == 1)
+                    {
+                        Destroy(tankManager.m_Instance);
+                    }
+                }
+
             }
         }
     }
