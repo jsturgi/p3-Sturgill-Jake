@@ -100,7 +100,11 @@ public class TankMovement : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Flag Acquired");
+        if (collision.gameObject.tag == "Flag")
+        {
+            CTFBroker.CallFlagTaken();
+            //Debug.Log("Flag Acquired");
+        }
         
     }
 }

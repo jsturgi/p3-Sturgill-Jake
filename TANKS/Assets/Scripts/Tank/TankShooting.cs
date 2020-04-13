@@ -24,6 +24,7 @@ public class TankShooting : MonoBehaviour
     private bool m_Fired;
     private bool m_Reloading = false;
     private float m_ReloadTimeCopy = 1.5f;
+    private bool m_FlagRunner = false;
     
 
 
@@ -32,14 +33,21 @@ public class TankShooting : MonoBehaviour
         m_CurrentLaunchForce = m_MinLaunchForce;
         m_AimSlider.value = m_MinLaunchForce;
         m_ReloadCooldown.value = 1.5f;
+        CTFBroker.FlagTaken += CTFBroker_FlagTaken;
     }
 
+    private void CTFBroker_FlagTaken()
+    {
+        FlagCarrier();
+    }
 
     private void Start()
     {
         m_FireButton = "Fire" + m_PlayerNumber;
 
         m_ChargeSpeed = (m_MaxLaunchForce - m_MinLaunchForce) / m_MaxChargeTime;
+
+        m_FlagRunner = false;
     }
     
 
@@ -49,12 +57,12 @@ public class TankShooting : MonoBehaviour
         // Track the current state of the fire button and make decisions based on the current launch force.
         m_AimSlider.value = m_MinLaunchForce;
 
-        if (m_CurrentLaunchForce >= m_MaxLaunchForce && !m_Fired && !m_Reloading)
+        if (m_CurrentLaunchForce >= m_MaxLaunchForce && !m_Fired && !m_Reloading && !m_FlagRunner)
         {
             m_CurrentLaunchForce = m_MaxLaunchForce;
             Fire();
         }
-        else if (Input.GetButtonDown(m_FireButton) && !m_Reloading)
+        else if (Input.GetButtonDown(m_FireButton) && !m_Reloading && !m_FlagRunner)
         {
             m_Fired = false;
             m_CurrentLaunchForce = m_MinLaunchForce;
@@ -62,13 +70,13 @@ public class TankShooting : MonoBehaviour
             m_ShootingAudio.clip = m_ChargingClip;
             m_ShootingAudio.Play();
         }
-        else if (Input.GetButton(m_FireButton) && !m_Fired && !m_Reloading)
+        else if (Input.GetButton(m_FireButton) && !m_Fired && !m_Reloading && !m_FlagRunner)
         {
             m_CurrentLaunchForce += m_ChargeSpeed * Time.deltaTime;
 
             m_AimSlider.value = m_CurrentLaunchForce;
         }
-        else if (Input.GetButtonUp(m_FireButton) && !m_Reloading)
+        else if (Input.GetButtonUp(m_FireButton) && !m_Reloading && !m_FlagRunner)
         {
             Fire();
         }
@@ -121,5 +129,10 @@ public class TankShooting : MonoBehaviour
     {
         m_ReloadTimeCopy -= Time.deltaTime;
         m_ReloadCooldown.value = m_ReloadTimeCopy;
+    }
+
+    private void FlagCarrier()
+    {
+        m_FlagRunner = true;
     }
 }
