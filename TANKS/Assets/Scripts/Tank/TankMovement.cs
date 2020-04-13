@@ -12,6 +12,7 @@ public class TankMovement : MonoBehaviour
     public AudioClip m_EngineDriving;
     public float m_PitchRange = .2f;
     public GameObject m_TankFlag;
+    public GameObject m_FlagTank;
 
     private string m_MovementAxisName;
     private string m_TurnAxisName;
@@ -20,6 +21,7 @@ public class TankMovement : MonoBehaviour
     private float m_TurnInputValue;
     private float m_OriginalPitch;
     private bool m_FlagCarry;
+    
     
 
     private void Awake()
@@ -46,10 +48,10 @@ public class TankMovement : MonoBehaviour
         m_TurnAxisName = "Horizontal" + m_PlayerNumber;
 
         m_OriginalPitch = m_MovementAudio.pitch;
-        CTFBroker.FlagTaken += CTFBroker_FlagTaken;
+        
     }
 
-    private void CTFBroker_FlagTaken()
+    private void FlagTaken()
     {
         m_TankFlag.SetActive(true);
         m_FlagCarry = true;
@@ -114,6 +116,11 @@ public class TankMovement : MonoBehaviour
         //Debug.Log(collision.gameObject.name);
         if ( collision.gameObject.tag == "Flag")
         {
+            m_FlagTank = this.gameObject;
+            m_FlagTank.GetComponent<TankShooting>().FlagCarrier();
+
+            FlagTaken();
+            
             CTFBroker.CallFlagTaken();
         }
         
