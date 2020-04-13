@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class TankHealth : MonoBehaviour
 {
     public float m_StartingHealth = 100f;          
-    public Slider m_Slider;                        
+    public Slider m_HealthSlider;
     public Image m_FillImage;                      
     public Color m_FullHealthColor = Color.green;  
     public Color m_ZeroHealthColor = Color.red;    
@@ -52,9 +52,10 @@ public class TankHealth : MonoBehaviour
     private void SetHealthUI()
     {
         // Adjust the value and colour of the slider.
-        m_Slider.value = m_CurrentHealth;
+ 
+        m_HealthSlider.value = m_CurrentHealth;
 
-        m_FillImage.color = Color.Lerp(m_ZeroHealthColor, m_FullHealthColor, m_CurrentHealth / m_StartingHealth);
+       // m_FillImage.color = Color.Lerp(m_ZeroHealthColor, m_FullHealthColor, m_CurrentHealth / m_StartingHealth);
     }
 
 
