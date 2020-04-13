@@ -5,11 +5,13 @@ using UnityEngine;
 public class CTFFLag : MonoBehaviour
 {
     public GameObject Flag;
+    public GameObject flagModel;
     // Start is called before the first frame update
     void Start()
     {
         CTFBroker.FlagTaken += CTFBroker_FlagTaken;
         Flag.SetActive(true);
+        flagModel.SetActive(true);
     }
 
     private void CTFBroker_FlagTaken()
@@ -26,5 +28,6 @@ public class CTFFLag : MonoBehaviour
     private void OnFlagTaken()
     {
         Flag.SetActive(false);
+        flagModel.SetActive(false);
     }
 }

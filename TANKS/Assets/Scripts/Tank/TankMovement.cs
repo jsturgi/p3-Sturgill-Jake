@@ -11,6 +11,7 @@ public class TankMovement : MonoBehaviour
     public AudioClip m_EngineIdle;
     public AudioClip m_EngineDriving;
     public float m_PitchRange = .2f;
+    public GameObject m_TankFlag;
 
     private string m_MovementAxisName;
     private string m_TurnAxisName;
@@ -18,6 +19,8 @@ public class TankMovement : MonoBehaviour
     private float m_MovementInputValue;
     private float m_TurnInputValue;
     private float m_OriginalPitch;
+    private bool m_FlagCarry;
+    
 
     private void Awake()
     {
@@ -29,6 +32,7 @@ public class TankMovement : MonoBehaviour
         m_Rigidbody.isKinematic = false;
         m_MovementInputValue = 0f;
         m_TurnInputValue = 0f;
+        m_TankFlag.SetActive(false);
     }
 
     private void OnDisable()
@@ -42,6 +46,13 @@ public class TankMovement : MonoBehaviour
         m_TurnAxisName = "Horizontal" + m_PlayerNumber;
 
         m_OriginalPitch = m_MovementAudio.pitch;
+        CTFBroker.FlagTaken += CTFBroker_FlagTaken;
+    }
+
+    private void CTFBroker_FlagTaken()
+    {
+        m_TankFlag.SetActive(true);
+        m_FlagCarry = true;
     }
 
     // Update is called once per frame
@@ -100,11 +111,25 @@ public class TankMovement : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "Flag")
+        //Debug.Log(collision.gameObject.name);
+        if ( collision.gameObject.tag == "Flag")
         {
             CTFBroker.CallFlagTaken();
-            //Debug.Log("Flag Acquired");
         }
         
+        if (collision.gameObject.name == "SpawnPoint1")
+        {
+            if (m_FlagCarry)
+            {
+                Debug.Log("Player1 Wins");
+            }
+        }
+        if (collision.gameObject.name == "SpawnPoint2")
+        {
+            if (m_FlagCarry)
+            {
+                Debug.Log("Player2 Wins!");
+            }
+        }
     }
 }
