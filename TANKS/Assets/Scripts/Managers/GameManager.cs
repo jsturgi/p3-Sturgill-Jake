@@ -12,14 +12,17 @@ public class GameManager : MonoBehaviour
     public CameraControl m_CameraControl;   
     public TextMeshProUGUI m_MessageText;              
     public GameObject m_TankPrefab;         
-    public TankManager[] m_Tanks;           
+    public TankManager[] m_Tanks;
+    public float timeLeft = 60.0f;
+    public TextMeshProUGUI timerText;
 
 
     private int m_RoundNumber;              
     private WaitForSeconds m_StartWait;     
     private WaitForSeconds m_EndWait;       
     private TankManager m_RoundWinner;
-    private TankManager m_GameWinner;       
+    private TankManager m_GameWinner;
+    private int TimerText;
 
 
     private void Start()
@@ -31,6 +34,19 @@ public class GameManager : MonoBehaviour
         SetCameraTargets();
 
         StartCoroutine(GameLoop());
+    }
+
+    private void Update()
+
+    {
+
+        timeLeft -= Time.deltaTime;
+        TimerText = Mathf.RoundToInt(timeLeft);
+        if (timeLeft == 0)
+        {
+            StartCoroutine(RoundEnding());
+        }
+        timerText.text = TimerText.ToString();
     }
 
 
@@ -78,6 +94,8 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator RoundStarting()
     {
+        timerText.gameObject.SetActive(false);
+        
         ResetAllTanks();
         DisableTankControl();
 
@@ -92,6 +110,8 @@ public class GameManager : MonoBehaviour
     private IEnumerator RoundPlaying()
     {
         EnableTankControl();
+        timeLeft = 60;
+        timerText.gameObject.SetActive(true);
 
         m_MessageText.text = string.Empty;
 
@@ -120,7 +140,8 @@ public class GameManager : MonoBehaviour
         string message = EndMessage();
 
         m_MessageText.text = message;
-
+        //timerText.text = "";
+        timerText.gameObject.SetActive(false);
 
         yield return m_EndWait;
     }
@@ -144,6 +165,8 @@ public class GameManager : MonoBehaviour
     {
         for (int i = 0; i < m_Tanks.Length; i++)
         {
+
+            
             if (m_Tanks[i].m_Instance.activeSelf)
                 return m_Tanks[i];
         }
@@ -210,4 +233,6 @@ public class GameManager : MonoBehaviour
             m_Tanks[i].DisableControl();
         }
     }
+
+    
 }
