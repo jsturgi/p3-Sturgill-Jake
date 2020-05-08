@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using System.Collections;
 
 [Serializable]
 public class TankManager
@@ -9,18 +10,26 @@ public class TankManager
     [HideInInspector] public int m_PlayerNumber;             
     [HideInInspector] public string m_ColoredPlayerText;
     [HideInInspector] public GameObject m_Instance;          
-    [HideInInspector] public int m_Wins;                     
+    [HideInInspector] public int m_Wins;
+    [HideInInspector] public GameObject flagCarrier;
+    [HideInInspector] public int flagCarrierNumber;
 
 
     private TankMovement m_Movement;       
     private TankShooting m_Shooting;
     private GameObject m_CanvasGameObject;
+    private GameManager m_GameManger;
+    
+
+
 
 
     public void Setup()
     {
         m_Movement = m_Instance.GetComponent<TankMovement>();
         m_Shooting = m_Instance.GetComponent<TankShooting>();
+        m_GameManger = m_Instance.GetComponent<GameManager>();
+        
         m_CanvasGameObject = m_Instance.GetComponentInChildren<Canvas>().gameObject;
 
         m_Movement.m_PlayerNumber = m_PlayerNumber;
@@ -34,7 +43,12 @@ public class TankManager
         {
             renderers[i].material.color = m_PlayerColor;
         }
-    }
+
+        
+
+       
+        
+}
 
 
     public void DisableControl()
@@ -63,4 +77,7 @@ public class TankManager
         m_Instance.SetActive(false);
         m_Instance.SetActive(true);
     }
+
+    
+
 }

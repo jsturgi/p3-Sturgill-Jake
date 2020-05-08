@@ -14,6 +14,9 @@ public class TankMovement : MonoBehaviour
     public GameObject m_TankFlag;
     public GameObject m_FlagTank;
     public TankManager m_RoundWonByMe = null;
+    public int flagCarrierPlayerNumber;
+    public GameObject spawnPoint1;
+    public GameObject spawnPoint2;
 
     private string m_MovementAxisName;
     private string m_TurnAxisName;
@@ -23,7 +26,10 @@ public class TankMovement : MonoBehaviour
     private float m_OriginalPitch;
     private bool m_FlagCarry;
     private TankManager tankManager;
-    private GameManager gameManager;
+    private int FlagCarryNumber;
+    
+    
+    
     
     
 
@@ -56,8 +62,12 @@ public class TankMovement : MonoBehaviour
 
     private void FlagTaken()
     {
+        
         m_TankFlag.SetActive(true);
         m_FlagCarry = true;
+        CTFBroker.CallFlagTaken();
+        
+
     }
 
     // Update is called once per frame
@@ -119,21 +129,29 @@ public class TankMovement : MonoBehaviour
         //Debug.Log(collision.gameObject.name);
         if ( collision.gameObject.tag == "Flag")
         {
-            m_FlagTank = this.gameObject;
-            m_FlagTank.GetComponent<TankShooting>().FlagCarrier();
 
-            FlagTaken();
+            m_FlagTank = this.gameObject;
             
-            CTFBroker.CallFlagTaken();
+            m_FlagTank.GetComponent<TankShooting>().FlagCarrier();
+            FlagTaken();
+            GetComponent<GameManager>().FlagTaken();
+            
+            
+            
+
+
+            
+            
+            
         }
         
         if (collision.gameObject.name == "SpawnPoint1")
         {
             if (m_FlagTank)
             {
-                for (int i = 0; i < gameManager.m_Tanks.Length; i++)
+                for (int i = 0; i < GetComponent<GameManager>().m_Tanks.Length; i++)
                 {
-                    if (gameManager.m_Tanks[i].m_PlayerNumber == 2)
+                    if (GetComponent<GameManager>().m_Tanks[i].m_PlayerNumber == 2)
                     {
                         Destroy(tankManager.m_Instance);
                     }
@@ -146,9 +164,9 @@ public class TankMovement : MonoBehaviour
         {
             if (m_FlagTank)
             {
-                for (int i = 0; i < gameManager.m_Tanks.Length; i++)
+                for (int i = 0; i < GetComponent<GameManager>().m_Tanks.Length; i++)
                 {
-                    if (gameManager.m_Tanks[i].m_PlayerNumber == 1)
+                    if (GetComponent<GameManager>().m_Tanks[i].m_PlayerNumber == 1)
                     {
                         Destroy(tankManager.m_Instance);
                     }

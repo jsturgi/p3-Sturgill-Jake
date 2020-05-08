@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class GameManager : MonoBehaviour
 {
@@ -15,7 +16,9 @@ public class GameManager : MonoBehaviour
     public TankManager[] m_Tanks;
     public float timeLeft = 60.0f;
     public TextMeshProUGUI timerText;
-
+    public GameObject m_SpawnPoint1;
+    public GameObject m_SpawnPoint2;
+    
 
     private int m_RoundNumber;              
     private WaitForSeconds m_StartWait;     
@@ -24,8 +27,12 @@ public class GameManager : MonoBehaviour
     private TankManager m_GameWinner;
     private int TimerText;
     private TankMovement movementScript;
+    private int flagCarryNumber;
+    
+    
+    
 
-
+    
     private void Start()
     {
         m_StartWait = new WaitForSeconds(m_StartDelay);
@@ -33,8 +40,32 @@ public class GameManager : MonoBehaviour
 
         SpawnAllTanks();
         SetCameraTargets();
+        
 
-        StartCoroutine(GameLoop());
+      
+        
+    }
+
+    public void FlagTaken()
+    {
+        for (int i = 0; i < m_Tanks.Length;)
+        {
+            if (m_Tanks[i].m_Instance == movementScript.m_FlagTank)
+            {
+                flagCarryNumber = m_Tanks[i].m_PlayerNumber;
+            }
+            i++;
+        }
+
+        if (m_SpawnPoint1.tag == flagCarryNumber.ToString())
+        {
+            m_SpawnPoint1.GetComponent<Renderer>().material.color = Color.blue;
+        }
+
+        if (m_SpawnPoint2.tag == flagCarryNumber.ToString())
+        {
+            m_SpawnPoint2.GetComponent<Renderer>().material.color = Color.red;
+        }
     }
 
     private void Update()
@@ -43,25 +74,30 @@ public class GameManager : MonoBehaviour
 
         timeLeft -= Time.deltaTime;
         TimerText = Mathf.RoundToInt(timeLeft);
-        if (timeLeft == 0)
+        if (timeLeft < 0f)
         {
             StartCoroutine(RoundEnding());
         }
         timerText.text = TimerText.ToString();
+      
 
        
 
     }
 
+   
 
     private void SpawnAllTanks()
     {
+       
         for (int i = 0; i < m_Tanks.Length; i++)
         {
             m_Tanks[i].m_Instance =
                 Instantiate(m_TankPrefab, m_Tanks[i].m_SpawnPoint.position, m_Tanks[i].m_SpawnPoint.rotation) as GameObject;
             m_Tanks[i].m_PlayerNumber = i + 1;
+            m_Tanks[i].flagCarrierNumber = i + 1;
             m_Tanks[i].Setup();
+            
         }
     }
 
@@ -100,6 +136,7 @@ public class GameManager : MonoBehaviour
     {
         timerText.gameObject.SetActive(false);
         
+        
         ResetAllTanks();
         DisableTankControl();
 
@@ -113,12 +150,12 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator RoundPlaying()
     {
+        m_MessageText.text = string.Empty;
         EnableTankControl();
         timeLeft = 60;
         timerText.gameObject.SetActive(true);
 
-        m_MessageText.text = string.Empty;
-
+      
         while (!OneTankLeft())
         {
             yield return null;
@@ -151,6 +188,7 @@ public class GameManager : MonoBehaviour
         m_MessageText.text = message;
         //timerText.text = "";
         timerText.gameObject.SetActive(false);
+       
 
         yield return m_EndWait;
     }
@@ -243,5 +281,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    
+
+
+
+ 
     
 }
