@@ -134,7 +134,7 @@ public class TankMovement : MonoBehaviour
             
             m_FlagTank.GetComponent<TankShooting>().FlagCarrier();
             FlagTaken();
-            GetComponent<GameManager>().FlagTaken();
+            
             
             
             

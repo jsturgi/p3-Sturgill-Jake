@@ -19,15 +19,19 @@ public class GameManager : MonoBehaviour
     public GameObject m_SpawnPoint1;
     public GameObject m_SpawnPoint2;
     
+    
 
     private int m_RoundNumber;              
     private WaitForSeconds m_StartWait;     
     private WaitForSeconds m_EndWait;       
     private TankManager m_RoundWinner;
     private TankManager m_GameWinner;
+    private TankMovement movementscript;
     private int TimerText;
-    private TankMovement movementScript;
     private int flagCarryNumber;
+    private enum gameState { RoundStarted, RoundPlaying, RoundEnded, RoundBeginning, RoundInitiating };
+    private gameState currentState;
+    private int endGameLoopBlocker = 0;
     
     
     
@@ -40,18 +44,21 @@ public class GameManager : MonoBehaviour
 
         SpawnAllTanks();
         SetCameraTargets();
-        StartCoroutine(GameLoop());
+        StartCoroutine(RoundStarting());
+        timeLeft = 60f;
+        timerText.gameObject.SetActive(false);
+        endGameLoopBlocker = 0;
         
 
-      
-        
+
+
     }
 
     public void FlagTaken()
     {
         for (int i = 0; i < m_Tanks.Length;)
         {
-            if (m_Tanks[i].m_Instance == movementScript.m_FlagTank)
+            if (m_Tanks[i].m_Instance == movementscript.m_FlagTank)
             {
                 flagCarryNumber = m_Tanks[i].m_PlayerNumber;
             }
@@ -71,19 +78,10 @@ public class GameManager : MonoBehaviour
 
     private void Update()
 
-    {
-
-        timeLeft -= Time.deltaTime;
-        TimerText = Mathf.RoundToInt(timeLeft);
-        if (timeLeft < 0f)
-        {
-            StartCoroutine(RoundEnding());
-        }
+    {       
         timerText.text = TimerText.ToString();
-      
-
-       
-
+        CheckGameState();
+        
     }
 
    
@@ -116,24 +114,25 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private IEnumerator GameLoop()
+    
+
+    private IEnumerator RoundTimer()
     {
-        Debug.Log("Called GameLoop");
-        yield return StartCoroutine(RoundStarting());
-        yield return StartCoroutine(RoundPlaying());
-        yield return StartCoroutine(RoundEnding());
-
-        if (m_GameWinner != null)
+        
+        while ( timeLeft > 0f)
         {
-            SceneManager.LoadScene(0);
+            yield return new WaitForSeconds(1);
+            timeLeft -= 1;
+            TimerText = Mathf.RoundToInt(timeLeft);
         }
-        else
+        if (timeLeft <= 0f)
         {
-            StartCoroutine(GameLoop());
+            timerText.gameObject.SetActive(false);
+            
         }
+       
+        
     }
-
-
     private IEnumerator RoundStarting()
     {
         timerText.gameObject.SetActive(false);
@@ -146,16 +145,20 @@ public class GameManager : MonoBehaviour
 
         m_RoundNumber++;
         m_MessageText.text = "ROUND " + m_RoundNumber;
-        Debug.Log(m_MessageText.text);
+        currentState = gameState.RoundBeginning;
+        endGameLoopBlocker = 0;
+        
+        
         yield return m_StartWait;
     }
 
 
     private IEnumerator RoundPlaying()
     {
+        StartCoroutine(RoundTimer());
         m_MessageText.text = string.Empty;
         EnableTankControl();
-        timeLeft = 60;
+        
         timerText.gameObject.SetActive(true);
 
       
@@ -168,32 +171,40 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator RoundEnding()
     {
-        DisableTankControl();
-
-        m_RoundWinner = null;
-
-        if (movementScript.m_RoundWonByMe != null)
+        if ( endGameLoopBlocker < 1)
         {
-            m_RoundWinner = movementScript.m_RoundWonByMe;
-        }
+            DisableTankControl();
+            StopCoroutine(RoundTimer());
 
-        m_RoundWinner = GetRoundWinner();
+            m_RoundWinner = null;
 
-        if (m_RoundWinner != null)
-        {
+            if (timeLeft < 0f)
+            {
+                m_MessageText.text = "DRAW!";
+                timerText.gameObject.SetActive(false);
+                yield return m_EndWait;
+                currentState = gameState.RoundInitiating;
+            }
+            m_RoundWinner = GetRoundWinner();
             m_RoundWinner.m_Wins++;
+
+            m_GameWinner = GetGameWinner();
+
+            string message = EndMessage();
+
+            m_MessageText.text = message;
+
+            timerText.gameObject.SetActive(false);
+            endGameLoopBlocker++;
         }
 
-        m_GameWinner = GetGameWinner();
+        currentState = gameState.RoundInitiating;
+        
 
-        string message = EndMessage();
-
-        m_MessageText.text = message;
-        //timerText.text = "";
-        timerText.gameObject.SetActive(false);
-       
-
-        yield return m_EndWait;
+        
+        
+        
+        
     }
 
 
@@ -216,9 +227,13 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < m_Tanks.Length; i++)
         {
 
-            
+
             if (m_Tanks[i].m_Instance.activeSelf)
+            {
+
                 return m_Tanks[i];
+            }
+                
         }
 
         return null;
@@ -284,6 +299,45 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
+    public void CheckGameState()
+    {
+        if (currentState == gameState.RoundStarted)
+        {
+            StopCoroutine(RoundStarting());
+            StartCoroutine(RoundPlaying());
+            currentState = gameState.RoundPlaying;
+        }
+        if (OneTankLeft())
+        {
+            StopCoroutine(RoundPlaying());
+            currentState = gameState.RoundEnded;
+            
+            StartCoroutine(RoundEnding());
+        }
+        if ( timeLeft <= 0f)
+        {
+            if (currentState != gameState.RoundEnded)
+            {
+                currentState = gameState.RoundEnded;
+                StopCoroutine(RoundPlaying());
+                StartCoroutine(RoundEnding());
+            }
+        }
+        if (currentState == gameState.RoundBeginning)
+        {
+            StopCoroutine(RoundStarting());
+            StartCoroutine(RoundPlaying());
+            currentState = gameState.RoundPlaying;
+        }
+        if (currentState == gameState.RoundInitiating)
+        {
+            
+            StopCoroutine(RoundEnding());
+            StartCoroutine(RoundStarting());
+            
+        }
+    }
     
 
 
