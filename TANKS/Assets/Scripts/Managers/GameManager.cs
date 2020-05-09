@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
 
         SpawnAllTanks();
         SetCameraTargets();
+        StartCoroutine(GameLoop());
         
 
       
@@ -117,6 +118,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator GameLoop()
     {
+        Debug.Log("Called GameLoop");
         yield return StartCoroutine(RoundStarting());
         yield return StartCoroutine(RoundPlaying());
         yield return StartCoroutine(RoundEnding());
@@ -144,6 +146,7 @@ public class GameManager : MonoBehaviour
 
         m_RoundNumber++;
         m_MessageText.text = "ROUND " + m_RoundNumber;
+        Debug.Log(m_MessageText.text);
         yield return m_StartWait;
     }
 
